@@ -23,9 +23,19 @@ resource "aws_instance" "app_server" {
 }
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "851725612549-terraform-states"
+  # other configurations
+}
+
+resource "aws_s3_bucket_acl" "terraform_state_acl" {
+  bucket = aws_s3_bucket.terraform_state.bucket
   acl    = "private"
 }
 
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "851725612549-terraform-states"
+  force_destroy = true # Optional: Destroys existing bucket contents
+  # other configurations
+}
 resource "aws_dynamodb_table" "terraform_lock" {
   name           = "terraform-lock"
   billing_mode   = "PROVISIONED"
