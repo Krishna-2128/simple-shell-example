@@ -21,3 +21,20 @@ resource "aws_instance" "app_server" {
     Name = "Terraform_Demo"
   }
 }
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "Terraform_1"
+  acl    = "private"
+}
+
+resource "aws_dynamodb_table" "terraform_lock" {
+  name           = "terraform-dynamodb1"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 5
+  write_capacity = 5
+  hash_key       = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
