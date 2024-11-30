@@ -1,50 +1,43 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.16"
-    }
-  }
-
-  required_version = ">= 1.2.0"
-}
-
+# Configure the AWS provider
 provider "aws" {
-  region  = "us-west-2"
+  region = "us-west-2"
 }
 
-resource "aws_instance" "app_server" {
-  ami           = "ami-830c94e3"
+# Configure backend for remote state storage
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state-bucket" 
+    key            = "terraform/remote/state"     
+    region         = "us-west-2"                  
+    dynamodb_table = "terraform-lock"             
+  }
+}
+
+# Resource: EC2 instance
+resource "aws_instance" "example" {
+  ami           = "ami-0c55b159cbfafe1f0" 
   instance_type = "t2.micro"
 
   tags = {
-    Name = "Terraform_Demo"
+    Name = "example-instance"
   }
 }
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "851725612549-terraform-states"
-  # other configurations
-}
 
-resource "aws_s3_bucket_acl" "terraform_state_acl" {
-  bucket = aws_s3_bucket.terraform_state.bucket
+# Resource: S3 bucket for remote state
+resource "aws_s3_bucket" "terraform_state_bucket" {
+  bucket = "my-terraform-state-bucket" 
   acl    = "private"
 }
 
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "851725612549-terraform-states"
-  force_destroy = true # Optional: Destroys existing bucket contents
-  # other configurations
-}
-resource "aws_dynamodb_table" "terraform_lock" {
-  name           = "terraform-lock"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 5
-  write_capacity = 5
-  hash_key       = "LockID"
+# Resource: DynamoDB table for state locking
+resource "aws_dynamodb_table" "terraform_lock_table" {
+  name         = "terraform-lock"  # Update with your table name
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "LockID"
     type = "S"
   }
+
+  hash_key = "LockID"
 }
