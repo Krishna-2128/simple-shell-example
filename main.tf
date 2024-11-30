@@ -22,12 +22,12 @@ resource "aws_instance" "app_server" {
   }
 }
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "Terraform_1"
+  bucket = "851725612549-terraform-states"
   acl    = "private"
 }
 
 resource "aws_dynamodb_table" "terraform_lock" {
-  name           = "terraform-dynamodb1"
+  name           = "terraform-lock"
   billing_mode   = "PROVISIONED"
   read_capacity  = 5
   write_capacity = 5
